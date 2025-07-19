@@ -4,7 +4,7 @@ services:
   producer_crawler_tw:  # 定義一個服務，名稱為 crawler_twse
     image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # 使用的映像檔名稱與標籤（版本）
     hostname: "producer_crawler_tw"  # 設定 hostname = producer_crawler_finmind_duplicate
-    command: pipenv run python crawler/producer_main_tw.py.py
+    command: pipenv run python crawler/producer_main_tw.py
     # swarm 設定
     deploy:
       mode: replicated
@@ -22,7 +22,7 @@ services:
   producer_crawler_us:  # 定義一個服務，名稱為 crawler_twse
     image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # 使用的映像檔名稱與標籤（版本）
     hostname: "producer_crawler_us"  # 設定 hostname = producer_crawler_finmind_duplicate
-    command: pipenv run python crawler/producer_main_us.py.py
+    command: pipenv run python crawler/producer_main_us.py
     # swarm 設定
     deploy:
       mode: replicated
