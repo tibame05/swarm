@@ -19,7 +19,7 @@ services:
       mode: replicated              # 使用 replicated 模式，非 global
       replicas: 1                   # 執行 1 個副本
       placement:
-        constraints: [node.labels.mysql == true]
+        constraints: [node.labels.mysql==true]
     networks:
       - etf_lib_network            # 加入定義好的 overlay 網路
 
@@ -41,7 +41,7 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.labels.mysql == true]
+        constraints: [node.labels.mysql==true]
     networks:
       - etf_lib_network           # 同樣加入 overlay 網路
 

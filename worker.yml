@@ -1,13 +1,13 @@
 version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
 
 services:
-  crawler_worker:  # 定義一個服務，名稱為 crawler_worker
+  crawler_tw:  # 定義一個服務
     image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
     # image: winston07291/web_crawler_tw:${DOCKER_IMAGE_VERSION}
     hostname: "tw.{{.Task.Slot}}"
-    command: pipenv run celery -A crawler.worker worker --loglevel=info
+    command: pipenv run celery -A crawler.worker worker --loglevel=info --hostname=%h -Q crawler_tw
     # 啟動容器後執行的命令，這裡是啟動 Celery worker，指定 app 為 crawler.worker，設定日誌等級為 info，
-    # 使用主機名稱當作 worker 名稱（%h），並將此 worker 加入名為 "twse" 的任務佇列 (queue)
+    # 使用主機名稱當作 worker 名稱（%h），並將此 worker 加入名為 "crawler_tw" 的任務佇列 (queue)
     # swarm 設定
     deploy:
       mode: replicated
@@ -15,7 +15,28 @@ services:
       placement:
         # 設定在
         # node label crawler_twse = true 的機器上執行
-        constraints: [node.labels.crawler == true]
+        constraints: [node.labels.crawler_tw==true]
+    restart: always  # 若容器停止或崩潰，自動重新啟動
+    environment:
+      - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
+    networks:
+      - etf_lib_network  # 將此服務連接到 my_swarm_network 網路
+
+  crawler_us:  # 定義一個服務
+    image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
+    # image: winston07291/web_crawler_tw:${DOCKER_IMAGE_VERSION}
+    hostname: "tw.{{.Task.Slot}}"
+    command: pipenv run celery -A crawler.worker worker --loglevel=info --hostname=%h -Q crawler_us
+    # 啟動容器後執行的命令，這裡是啟動 Celery worker，指定 app 為 crawler.worker，設定日誌等級為 info，
+    # 使用主機名稱當作 worker 名稱（%h），並將此 worker 加入名為 "crawler_us" 的任務佇列 (queue)
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        # 設定在
+        # node label crawler_twse = true 的機器上執行
+        constraints: [node.labels.crawler_us==true]
     restart: always  # 若容器停止或崩潰，自動重新啟動
     environment:
       - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
