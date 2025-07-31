@@ -2,8 +2,8 @@ version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場
 
 services:
   producer_crawler_tw:  # 定義一個服務，名稱為 crawler_twse
-    image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
-    # image: winston07291/web_crawler_tw:${DOCKER_IMAGE_VERSION}
+    # image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
+    image: ${DOCKER_IMAGE}
     hostname: "producer_crawler_tw"  # 設定 hostname = producer_crawler_finmind_duplicate
     command: pipenv run python crawler/producer_main_tw.py
     # swarm 設定
@@ -21,8 +21,8 @@ services:
       - etf_lib_network  # 將此服務連接到 my_swarm_network 網路
 
   producer_crawler_us:  # 定義一個服務，名稱為 crawler_twse
-    image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
-    # image: winston07291/web_crawler_tw:${DOCKER_IMAGE_VERSION}
+    # image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
+    image: ${DOCKER_IMAGE}
     hostname: "producer_crawler_us"  # 設定 hostname = producer_crawler_finmind_duplicate
     command: pipenv run python crawler/producer_main_us.py
     # swarm 設定

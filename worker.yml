@@ -2,8 +2,8 @@ version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場
 
 services:
   crawler_tw:  # 定義一個服務
-    image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
-    # image: winston07291/web_crawler_tw:${DOCKER_IMAGE_VERSION}
+    # image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
+    image: ${DOCKER_IMAGE}
     hostname: "tw.{{.Task.Slot}}"
     command: pipenv run celery -A crawler.worker worker --loglevel=info --hostname=%h -Q crawler_tw
     # 啟動容器後執行的命令，這裡是啟動 Celery worker，指定 app 為 crawler.worker，設定日誌等級為 info，
@@ -23,8 +23,8 @@ services:
       - etf_lib_network  # 將此服務連接到 my_swarm_network 網路
 
   crawler_us:  # 定義一個服務
-    image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
-    # image: winston07291/web_crawler_tw:${DOCKER_IMAGE_VERSION}
+    # image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
+    image: ${DOCKER_IMAGE}
     hostname: "tw.{{.Task.Slot}}"
     command: pipenv run celery -A crawler.worker worker --loglevel=info --hostname=%h -Q crawler_us
     # 啟動容器後執行的命令，這裡是啟動 Celery worker，指定 app 為 crawler.worker，設定日誌等級為 info，
