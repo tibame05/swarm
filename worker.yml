@@ -1,7 +1,7 @@
 version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
 
 services:
-  crawler_tw:  # 定義一個服務
+  worker_crawler_tw:  # 定義一個服務
     # image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
     image: ${DOCKER_IMAGE}
     hostname: "tw.{{.Task.Slot}}"
@@ -22,7 +22,7 @@ services:
     networks:
       - etf_lib_network  # 將此服務連接到 my_swarm_network 網路
 
-  crawler_us:  # 定義一個服務
+  worker_crawler_us:  # 定義一個服務
     # image: joycehsu65/web_crawler:${DOCKER_IMAGE_VERSION}  # ! 使用的映像檔名稱與標籤（版本）
     image: ${DOCKER_IMAGE}
     hostname: "us.{{.Task.Slot}}"
