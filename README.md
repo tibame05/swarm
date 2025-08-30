@@ -1,10 +1,20 @@
-# swarm (先複製老師的command)
+# swarm 啟動 container
 
 ## 刪除所有 container
 
     docker rm -f $(docker ps -a -q)
 
-# Swarm
+# GCE docker swarm 部署
+
+## GCE ubuntu 安裝 docker
+	sudo apt-get update
+	sudo apt-get install docker.io -y
+
+## 登入 docker
+	docker login -u {docker hub 帳號}
+
+## 將帳號加入 docker group
+	sudo usermod -aG docker $USER
 
 ## init
 
@@ -18,6 +28,23 @@
 
 	docker swarm join-token worker
 
+## 建立 MySQL volume:
+
+	docker volume create mysql
+
+- `docker volume create {volume 名稱}`
+
+## create-network:
+
+	docker network create --scope=swarm --driver=overlay --attachable etf_lib_network
+
+- `docker network create --scope=swarm --driver=overlay --attachable {network 名稱}`
+
+#### 參數解釋
+- `--scope=swarm` : 限定該網路僅在 Docker Swarm 模式中使用
+- `--driver=overlay` : 使用 overlay driver，支援「多主機」上的容器間通訊
+- `--attachable` : 建立一個 overlay 網路時，允許非 Swarm 管理的容器（例如 docker run 指令或 DockerOperator 啟動的臨時容器） 主動加入這個網路
+
 ## 部屬 Portainer 服務
 
 	docker pull portainer/portainer-ce:2.0.1
@@ -28,59 +55,45 @@
 
 http://127.0.0.1:9000
 
-## create-mysql-volume:
-	docker volume create mysql
 
-## remove-network
-	docker network rm my_swarm_network
 
-## create-network:
-	docker network create --scope=swarm --driver=overlay my_swarm_network
-	docker network create --scope=swarm --driver=overlay --attachable my_swarm_network
-
-## deploy-mysql:
+## deploy MySQL:
 	docker stack deploy --with-registry-auth -c mysql.yml mysql
-	docker stack deploy --with-registry-auth -c mysql-gce.yml mysql
 
-## deploy-rabbitmq:
+- `docker stack deploy --with-registry-auth -c mysql.yml {stack 名稱}`
+
+## deploy rabbitmq:
 	docker stack deploy --with-registry-auth -c rabbitmq.yml rabbitmq
-	docker stack deploy --with-registry-auth -c rabbitmq-gce.yml rabbitmq
+
+- `docker stack deploy --with-registry-auth -c rabbitmq.yml {stack 名稱}`
+
+## deploy crawler worker:
+	DOCKER_IMAGE=winston07291/web_crawler_etf:0.0.7 docker stack deploy --with-registry-auth -c worker.yml crawler
+
+- `DOCKER_IMAGE={docker hub 名稱}/{image 名稱}:{版本號} docker stack deploy --with-registry-auth -c worker.yml {stack 名稱}`
+
+## deploy crawler producer:
+	DOCKER_IMAGE=winston07291/web_crawler_etf:0.0.7 docker stack deploy --with-registry-auth -c producer.yml crawler
+
+- `DOCKER_IMAGE={docker hub 名稱}/{image 名稱}:{版本號} docker stack deploy --with-registry-auth -c producer.yml {stack 名稱}`
+
+## deploy API:
+	DOCKER_IMAGE=winston07291/fast_api:0.0.5 docker stack deploy --with-registry-auth -c api.yml api
+
+- `DOCKER_IMAGE={docker hub 名稱}/{image 名稱}:{版本號} docker stack deploy --with-registry-auth -c api.yml {stack 名稱}`
+
+## deploy airflow
+	DOCKER_IMAGE_VERSION=0.0.4 docker stack deploy --with-registry-auth -c airflow.yml airflow
+
+- `DOCKER_IMAGE_VERSION={版本號} docker stack deploy --with-registry-auth -c airflow.yml {stack 名稱}`
+
+## deploy redash
+	docker stack deploy --with-registry-auth -c redash.yml redash
+
+- `docker stack deploy --with-registry-auth -c redash.yml {stack 名稱}`
+
+## 刪除 stack
+	docker stack rm {stack 名稱}
 
 ## 離開 docker swarm
 	docker swarm leave --force
-
-## deploy-crawler:
-	DOCKER_IMAGE_VERSION=0.0.6 docker stack deploy --with-registry-auth -c docker-compose-worker-network-version-swarm.yml crawler
-
-## 發送任務:
-	DOCKER_IMAGE_VERSION=0.0.6 docker stack deploy --with-registry-auth -c docker-compose-producer-duplicate-network-version.yml crawler
-
-## 部屬 API:
-	DOCKER_IMAGE_VERSION=0.0.1 docker stack deploy --with-registry-auth -c docker-compose-api-network-version-swarm.yml api
-
-## rm stack
-	docker stack rm airflow api crawler mysql rabbitmq
-
-## ubuntu 安裝 docker
-
-	sudo apt-get update
-	sudo apt-get install docker.io -y
-
-## 將你的帳號加入 docker group
-	sudo usermod -aG docker $USER
-
-## 登入 docker
-	docker login -u linsamtw
-
-## upload_taiwan_stock_price_to_mysql
-	docker stack deploy --with-registry-auth -c docker-compose-upload_taiwan_stock_price_to_mysql.yml upload
-
-## 設定 linode hostname
-	sudo hostname manager
-	sudo hostname mysql
-	sudo hostname rabbitmq
-	sudo hostname airflow
-
-## 啟動 redash
-	docker stack deploy -c docker-compose-redash.yml redash
-
