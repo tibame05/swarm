@@ -1,0 +1,208 @@
+version: '3.0'
+
+services:
+  # 初始化 Airflow 資料庫
+  # initdb:
+  #   image: ${DOCKER_IMAGE}  # 使用指定版本的自定義映像
+  #   command: pipenv run airflow db init  # 初始化 Airflow 的 metadata DB
+  #   restart: on-failure  # 若失敗則自動重啟
+  #   deploy:
+  #     mode: replicated  # 使用 swarm replicated 模式
+  #     replicas: 1  # 執行一個副本
+  #     placement:
+  #       constraints: [node.labels.airflow == true]  # 僅部署在標記為 airflow 的節點
+  #   networks:
+  #     - etf_lib_network  # 使用外部 swarm 網路
+
+  # 建立 Airflow 使用者
+  create-user:
+    image: ${DOCKER_IMAGE}  # 同一映像
+    command: >
+      bash -c "
+      until pipenv run airflow db check; do
+        echo 'waiting for airflow metadata db...';
+        sleep 3;
+      done;
+      pipenv run airflow users create \
+        --username admin \
+        --firstname lu \
+        --lastname winston \
+        --role Admin \
+        --password admin \
+        --email winston07291@gmail.com
+      "
+    environment:
+      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
+      - TZ=Asia/Taipei
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: none   # 只跑一次，不允許 Swarm 重啟
+      placement:
+        constraints: [node.labels.airflow == true]
+    networks:
+      - etf_lib_network
+
+
+  redis:
+    image: 'bitnami/redis:5.0'
+    ports:
+        - 6379:6379
+    volumes:
+        - 'redis_data:/bitnami/redis/data'
+    environment:
+        - ALLOW_EMPTY_PASSWORD=yes
+    restart: always
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow == true]
+    networks:
+        - etf_lib_network
+
+  # Airflow Web UI 介面
+  webserver:
+    image: ${DOCKER_IMAGE}
+    hostname: "airflow-webserver"  # 指定主機名稱
+    # 先確認 DB ready，再啟動服務
+    command: >
+      bash -c "
+      until pipenv run airflow db check; do
+        echo 'waiting for airflow metadata db...';
+        sleep 3;
+      done;
+      pipenv run airflow webserver -p 5000
+      "
+    # docker swarm 模式下，所有 service 會同時啟動，無法用 depends_on 控制「啟動順序」
+    # depends_on:
+    #   - initdb  # 等待資料庫初始化
+    restart: always  # 永遠重新啟動（即使正常退出也重啟）
+    environment:
+      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
+      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
+      - TZ=Asia/Taipei
+    ports:
+      - 5000:5000  # 對外開放 5000 port
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow == true]
+    networks:
+      - etf_lib_network
+
+  flower:
+    image: mher/flower:0.9.5
+    restart: always
+    command: ["flower", "--broker=redis://redis:6379/0", "--port=5555"]
+    ports:
+        - "5556:5555"
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow == true]
+    networks:
+        - etf_lib_network
+  
+  # Airflow 排程器，負責執行 DAG 任務
+  scheduler:
+    image: ${DOCKER_IMAGE}
+    hostname: "airflow-scheduler"
+    command: >
+      bash -c "
+      until pipenv run airflow db check; do
+        echo 'waiting for airflow metadata db...';
+        sleep 3;
+      done;
+      pipenv run airflow scheduler
+      "
+    restart: always
+    environment:
+      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
+      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
+      - TZ=Asia/Taipei
+    # 將容器內的 docker 與容器外的 docker 做連結
+    volumes:
+      # - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.labels.airflow == true]
+    networks:
+      - etf_lib_network
+
+  airflow_worker_crawler_tw:
+    image: ${DOCKER_IMAGE}
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    command: >
+      bash -c "
+      until pipenv run airflow db check; do
+        echo 'waiting for airflow metadata db...';
+        sleep 3;
+      done;
+      pipenv run airflow celery worker -q crawler_tw
+      "
+    restart: always
+    environment:
+      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
+      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
+      - TZ=Asia/Taipei
+    # 將容器內的 docker 與容器外的 docker 做連結
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        # 爬蟲 producer container(DockerOperator) 會跑在 Airflow Worker 所在的 VM 上
+        constraints: [node.labels.producer == true]
+    networks:
+        - etf_lib_network
+
+  airflow_worker_crawler_us:
+    image: ${DOCKER_IMAGE}
+    hostname: "{{.Service.Name}}.{{.Task.Slot}}"
+    command: >
+      bash -c "
+      until pipenv run airflow db check; do
+        echo 'waiting for airflow metadata db...';
+        sleep 3;
+      done;
+      pipenv run airflow celery worker -q crawler_us
+      "
+    restart: always
+    environment:
+      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
+      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
+      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
+      - TZ=Asia/Taipei
+    # 將容器內的 docker 與容器外的 docker 做連結
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # swarm 設定
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        # 爬蟲 producer container(DockerOperator) 會跑在 Airflow Worker 所在的 VM 上
+        constraints: [node.labels.producer == true]
+    networks:
+        - etf_lib_network
+
+# 使用外部已建立好的 Docker Swarm 網路
+networks:
+  etf_lib_network:
+    external: true
+
+volumes:
+  redis_data:
