@@ -15,34 +15,34 @@ services:
   #     - etf_lib_network  # 使用外部 swarm 網路
 
   # 建立 Airflow 使用者
-  create-user:
-    image: ${DOCKER_IMAGE}  # 同一映像
-    command: >
-      bash -c "
-      until pipenv run airflow db check; do
-        echo 'waiting for airflow metadata db...';
-        sleep 3;
-      done;
-      pipenv run airflow users create \
-        --username admin \
-        --firstname lu \
-        --lastname winston \
-        --role Admin \
-        --password admin \
-        --email winston07291@gmail.com
-      "
-    environment:
-      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
-      - TZ=Asia/Taipei
-    deploy:
-      mode: replicated
-      replicas: 1
-      restart_policy:
-        condition: none   # 只跑一次，不允許 Swarm 重啟
-      placement:
-        constraints: [node.labels.airflow == true]
-    networks:
-      - etf_lib_network
+  # create-user:
+  #   image: ${DOCKER_IMAGE}  # 同一映像
+  #   command: >
+  #     bash -c "
+  #     until pipenv run airflow db check; do
+  #       echo 'waiting for airflow metadata db...';
+  #       sleep 3;
+  #     done;
+  #     pipenv run airflow users create \
+  #       --username admin \
+  #       --firstname lu \
+  #       --lastname winston \
+  #       --role Admin \
+  #       --password admin \
+  #       --email winston07291@gmail.com
+  #     "
+  #   environment:
+  #     - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
+  #     - TZ=Asia/Taipei
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     restart_policy:
+  #       condition: none   # 只跑一次，不允許 Swarm 重啟
+  #     placement:
+  #       constraints: [node.labels.airflow == true]
+  #   networks:
+  #     - etf_lib_network
 
 
   redis:

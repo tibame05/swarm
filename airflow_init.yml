@@ -1,0 +1,36 @@
+version: '3.0'
+
+services:
+  airflow-init:
+    image: ${DOCKER_IMAGE}
+
+    command: >
+      bash -c "
+      echo '=== Airflow DB init ===' &&
+      airflow db init &&
+      echo '=== Create admin user ===' &&
+      airflow users create
+        --username admin
+        --firstname lu
+        --lastname winston
+        --role Admin
+        --password admin
+        --email winston07291@gmail.com
+      "
+
+    env_file:
+      - .env
+
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+      placement:
+        constraints: [node.labels.airflow == true]
+
+    networks:
+      - etf_lib_network
+
+networks:
+  etf_lib_network:
+    external: true
