@@ -4,17 +4,20 @@ services:
   airflow-init:
     image: ${DOCKER_IMAGE}
 
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: ${MY_SQL_CONN_STRING}
+
     command: >
       bash -c "
       echo '=== Airflow DB init ===' &&
       airflow db init &&
       echo '=== Create admin user ===' &&
-      airflow users create
-        --username admin
-        --firstname lu
-        --lastname winston
-        --role Admin
-        --password admin
+      airflow users create \
+        --username admin \
+        --firstname lu \
+        --lastname winston \
+        --role Admin \
+        --password admin \
         --email winston07291@gmail.com
       "
 
