@@ -12,13 +12,7 @@ services:
       echo '=== Airflow DB init ===' &&
       airflow db init &&
       echo '=== Create admin user ===' &&
-      airflow users create \
-        --username admin \
-        --firstname lu \
-        --lastname winston \
-        --role Admin \
-        --password admin \
-        --email winston07291@gmail.com
+      airflow users create --username admin --firstname lu --lastname winston --role Admin --password admin --email winston07291@gmail.com
       "
 
     deploy:
