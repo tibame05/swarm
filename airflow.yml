@@ -52,7 +52,7 @@ services:
     volumes:
         - 'redis_data:/bitnami/redis/data'
     environment:
-        - ALLOW_EMPTY_PASSWORD=yes
+        ALLOW_EMPTY_PASSWORD: yes
     restart: always
     # swarm 設定
     deploy:
@@ -81,11 +81,11 @@ services:
     #   - initdb  # 等待資料庫初始化
     restart: always  # 永遠重新啟動（即使正常退出也重啟）
     environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${MY_SQL_CONN_STRING}
-      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
-      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
-      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
-      - TZ=Asia/Taipei
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${MY_SQL_CONN_STRING}
+      AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
+      AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
+      AIRFLOW_CONFIG: /dataflow/airflow-gce.cfg
+      TZ: Asia/Taipei
     ports:
       - 5000:5000  # 對外開放 5000 port
     deploy:
@@ -125,11 +125,11 @@ services:
       "
     restart: always
     environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${MY_SQL_CONN_STRING}
-      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
-      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
-      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
-      - TZ=Asia/Taipei
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${MY_SQL_CONN_STRING}
+      AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
+      AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
+      AIRFLOW_CONFIG: /dataflow/airflow-gce.cfg
+      TZ: Asia/Taipei
     deploy:
       mode: replicated
       replicas: 1
@@ -151,11 +151,11 @@ services:
       "
     restart: always
     environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${MY_SQL_CONN_STRING}
-      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
-      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
-      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
-      - TZ=Asia/Taipei
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${MY_SQL_CONN_STRING}
+      AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
+      AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
+      AIRFLOW_CONFIG: /dataflow/airflow-gce.cfg
+      TZ: Asia/Taipei
     # 將容器內的 docker 與容器外的 docker 做連結
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -182,11 +182,11 @@ services:
       "
     restart: always
     environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${MY_SQL_CONN_STRING}
-      - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
-      - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
-      - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
-      - TZ=Asia/Taipei
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${MY_SQL_CONN_STRING}
+      AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
+      AIRFLOW__WEBSERVER__INSTANCE_NAME: airflow
+      AIRFLOW_CONFIG: /dataflow/airflow-gce.cfg
+      TZ: Asia/Taipei
     # 將容器內的 docker 與容器外的 docker 做連結
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
