@@ -81,6 +81,7 @@ services:
     #   - initdb  # 等待資料庫初始化
     restart: always  # 永遠重新啟動（即使正常退出也重啟）
     environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${MY_SQL_CONN_STRING}
       - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
       - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
       - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
@@ -124,6 +125,7 @@ services:
       "
     restart: always
     environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${MY_SQL_CONN_STRING}
       - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
       - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
       - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
@@ -149,6 +151,7 @@ services:
       "
     restart: always
     environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${MY_SQL_CONN_STRING}
       - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
       - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
       - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
@@ -179,6 +182,7 @@ services:
       "
     restart: always
     environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${MY_SQL_CONN_STRING}
       - AIRFLOW__WEBSERVER__WEB_SERVER_NAME=airflow
       - AIRFLOW__WEBSERVER__INSTANCE_NAME=airflow
       - AIRFLOW_CONFIG=/dataflow/airflow-gce.cfg
