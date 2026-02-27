@@ -80,6 +80,8 @@ services:
     # depends_on:
     #   - initdb  # 等待資料庫初始化
     restart: always  # 永遠重新啟動（即使正常退出也重啟）
+    secrets:
+      - airflow_db_conn
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_CMD: "cat /run/secrets/airflow_db_conn"
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
@@ -124,6 +126,8 @@ services:
       pipenv run airflow scheduler
       "
     restart: always
+    secrets:
+      - airflow_db_conn
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_CMD: "cat /run/secrets/airflow_db_conn"
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
@@ -150,6 +154,8 @@ services:
       pipenv run airflow celery worker -q crawler_tw
       "
     restart: always
+    secrets:
+      - airflow_db_conn
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_CMD: "cat /run/secrets/airflow_db_conn"
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
@@ -181,6 +187,8 @@ services:
       pipenv run airflow celery worker -q crawler_us
       "
     restart: always
+    secrets:
+      - airflow_db_conn
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_CMD: "cat /run/secrets/airflow_db_conn"
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
@@ -207,3 +215,7 @@ networks:
 
 volumes:
   redis_data:
+
+secrets:
+  airflow_db_conn:
+    external: true
