@@ -5,7 +5,7 @@ services:
     image: ${DOCKER_IMAGE}
 
     environment:
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: ${MY_SQL_CONN_STRING}
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: "cat /run/secrets/airflow_db_conn"
 
     command: >
       bash -c "
