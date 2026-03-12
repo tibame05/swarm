@@ -156,6 +156,7 @@ services:
     restart: always
     secrets:
       - airflow_db_conn
+      - web_crawler_env
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_CMD: "cat /run/secrets/airflow_db_conn"
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
@@ -189,6 +190,7 @@ services:
     restart: always
     secrets:
       - airflow_db_conn
+      - web_crawler_env
     environment:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_CMD: "cat /run/secrets/airflow_db_conn"
       AIRFLOW__WEBSERVER__WEB_SERVER_NAME: airflow
@@ -218,4 +220,6 @@ volumes:
 
 secrets:
   airflow_db_conn:
+    external: true
+  web_crawler_env:
     external: true
