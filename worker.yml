@@ -1,4 +1,5 @@
-version: '3.0'  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
+# 3.1+ 才支援 Swarm service 的 secrets；3.0 會報 "Additional property secrets is not allowed"
+version: '3.8'
 
 services:
   worker_crawler_tw:  # 定義一個服務
