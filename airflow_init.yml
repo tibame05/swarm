@@ -1,11 +1,14 @@
-version: '3.0'
+version: '3.8'
 
 services:
   airflow-init:
     image: ${DOCKER_IMAGE}
-
+    secrets:
+      - airflow_db_conn
     environment:
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: "cat /run/secrets/airflow_db_conn"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN_CMD: "cat /run/secrets/airflow_db_conn"
+      AIRFLOW_CONFIG: /dataflow/airflow-gce.cfg
+      TZ: Asia/Taipei
 
     command: >
       bash -c "
@@ -27,4 +30,8 @@ services:
 
 networks:
   etf_lib_network:
+    external: true
+
+secrets:
+  airflow_db_conn:
     external: true
