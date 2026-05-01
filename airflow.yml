@@ -68,14 +68,15 @@ services:
     image: ${DOCKER_IMAGE}
     hostname: "airflow-webserver"  # 指定主機名稱
     # 先確認 DB ready，再啟動服務
-    command: >
-      bash -c "
-      until pipenv run airflow db check; do
-        echo 'waiting for airflow metadata db...';
-        sleep 3;
-      done;
-      pipenv run airflow webserver -p 5000
-      "
+    command:
+      - bash
+      - -lc
+      - |
+        until pipenv run airflow db check; do
+          echo 'waiting for airflow metadata db...';
+          sleep 3;
+        done;
+        exec pipenv run airflow webserver -p 5000
     # docker swarm 模式下，所有 service 會同時啟動，無法用 depends_on 控制「啟動順序」
     # depends_on:
     #   - initdb  # 等待資料庫初始化
@@ -117,14 +118,15 @@ services:
   scheduler:
     image: ${DOCKER_IMAGE}
     hostname: "airflow-scheduler"
-    command: >
-      bash -c "
-      until pipenv run airflow db check; do
-        echo 'waiting for airflow metadata db...';
-        sleep 3;
-      done;
-      pipenv run airflow scheduler
-      "
+    command:
+      - bash
+      - -lc
+      - |
+        until pipenv run airflow db check; do
+          echo 'waiting for airflow metadata db...';
+          sleep 3;
+        done;
+        exec pipenv run airflow scheduler
     restart: always
     secrets:
       - airflow_db_conn
@@ -145,14 +147,15 @@ services:
   airflow_worker_crawler_tw:
     image: ${DOCKER_IMAGE}
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
-    command: >
-      bash -c "
-      until pipenv run airflow db check; do
-        echo 'waiting for airflow metadata db...';
-        sleep 3;
-      done;
-      pipenv run airflow celery worker -q crawler_tw
-      "
+    command:
+      - bash
+      - -lc
+      - |
+        until pipenv run airflow db check; do
+          echo 'waiting for airflow metadata db...';
+          sleep 3;
+        done;
+        exec pipenv run airflow celery worker -q crawler_tw
     restart: always
     secrets:
       - airflow_db_conn
@@ -179,14 +182,15 @@ services:
   airflow_worker_crawler_us:
     image: ${DOCKER_IMAGE}
     hostname: "{{.Service.Name}}.{{.Task.Slot}}"
-    command: >
-      bash -c "
-      until pipenv run airflow db check; do
-        echo 'waiting for airflow metadata db...';
-        sleep 3;
-      done;
-      pipenv run airflow celery worker -q crawler_us
-      "
+    command:
+      - bash
+      - -lc
+      - |
+        until pipenv run airflow db check; do
+          echo 'waiting for airflow metadata db...';
+          sleep 3;
+        done;
+        exec pipenv run airflow celery worker -q crawler_us
     restart: always
     secrets:
       - airflow_db_conn

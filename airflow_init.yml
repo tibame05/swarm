@@ -10,13 +10,14 @@ services:
       AIRFLOW_CONFIG: /dataflow/airflow-gce.cfg
       TZ: Asia/Taipei
 
-    command: >
-      bash -c "
-      echo '=== Airflow DB init ===' &&
-      airflow db init &&
-      echo '=== Create admin user ===' &&
-      airflow users create --username admin --firstname lu --lastname winston --role Admin --password admin --email winston07291@gmail.com
-      "
+    command:
+      - bash
+      - -lc
+      - |
+        echo '=== Airflow DB init ==='
+        airflow db init
+        echo '=== Create admin user ==='
+        airflow users create --username admin --firstname lu --lastname winston --role Admin --password admin --email winston07291@gmail.com
 
     deploy:
       replicas: 1
